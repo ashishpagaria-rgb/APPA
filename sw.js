@@ -1,16 +1,15 @@
-const CACHE_NAME = 'appa-v1';
+const CACHE_NAME = 'appa-v2';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  'https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap'
+  '/APPA/',
+  '/APPA/index.html',
+  '/APPA/manifest.json',
+  '/APPA/icons/icon-192.png',
+  '/APPA/icons/icon-512.png',
 ];
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS.filter(a => !a.startsWith('http'))))
+    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
   self.skipWaiting();
 });
@@ -26,7 +25,7 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
-  // Always go network-first for Polygon API calls
+  // Always network-first for Polygon API
   if (url.hostname.includes('polygon.io')) {
     e.respondWith(
       fetch(e.request).catch(() =>
@@ -37,7 +36,7 @@ self.addEventListener('fetch', e => {
     );
     return;
   }
-  // Cache-first for app assets
+  // Cache-first for everything else
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request).then(resp => {
       if (resp.ok) {
